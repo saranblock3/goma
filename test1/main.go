@@ -14,7 +14,7 @@ func main() {
 	}
 	defer homaSocket.Close()
 	content := []byte("The quick brown fox jumps over the lazy dog")
-	homaSocket.WriteTo(content, "127.0.0.1", 4)
+	homaSocket.WriteTo(content, "130.127.133.61", 4)
 
 	content, address, id, err := homaSocket.Read()
 	if err != nil {

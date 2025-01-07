@@ -49,7 +49,7 @@ func main() {
 			"The quick brown fox jumps over the lazy dog\n" +
 			"The quick brown fox jumps over the lazy dog\n",
 	)
-	homaSocket.WriteTo(content, "127.0.0.1", 3)
+	homaSocket.WriteTo(content, "130.127.133.51", 3)
 
 	content, address, id, err := homaSocket.Read()
 	if err != nil {
