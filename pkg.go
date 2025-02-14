@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math/rand/v2"
 	"net"
+	"os"
 )
 
 const HOMA_SOCKET_PATH string = "/tmp/homa.sock"
@@ -152,7 +153,7 @@ func (h *homaSocket) WriteTo(content []byte, address string, id uint32) error {
 		return err
 	}
 	messageId := rand.Uint64()
-	fmt.Println(messageId)
+	fmt.Fprintln(os.Stderr, "-+-", messageId)
 
 	homaMessage := &homaMessage{
 		id:                 messageId,
@@ -176,35 +177,35 @@ func (h *homaSocket) WriteTo(content []byte, address string, id uint32) error {
 	return nil
 }
 
-func (h *homaSocket) Read() ([]byte, string, uint32, error) {
+func (h *homaSocket) Read() ([]byte, string, uint32, uint64, error) {
 	sizeBytes := make([]byte, 8)
 	n, err := h.conn.Read(sizeBytes)
 	if err != nil || n < 8 {
-		return nil, "", 0, err
+		return nil, "", 0, 0, err
 	}
 	size := binary.LittleEndian.Uint64(sizeBytes)
 
 	homaMessageBytes := make([]byte, size)
 	n, err = h.conn.Read(homaMessageBytes)
 	if err != nil || uint64(n) < size {
-		return nil, "", 0, err
+		return nil, "", 0, 0, err
 	}
 
 	homaMessage := &homaMessage{}
 	err = homaMessage.unmarshal(homaMessageBytes)
 	if err != nil {
-		return nil, "", 0, err
+		return nil, "", 0, 0, err
 	}
 
 	address := fmt.Sprintf(
 		"%d.%d.%d.%d",
 		homaMessage.sourceAddress[0],
 		homaMessage.sourceAddress[1],
-		homaMessage.sourceAddress[1],
-		homaMessage.sourceAddress[1],
+		homaMessage.sourceAddress[2],
+		homaMessage.sourceAddress[3],
 	)
 
-	return homaMessage.content, address, homaMessage.sourceId, nil
+	return homaMessage.content, address, homaMessage.sourceId, homaMessage.id, nil
 }
 
 func (h *homaSocket) Close() error {

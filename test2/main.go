@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	homaSocket, err := goma.NewHomaSocket(4)
+	homaSocket, err := goma.NewHomaSocket(1)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -49,7 +49,7 @@ func main() {
 			"The quick brown fox jumps over the lazy dog\n" +
 			"The quick brown fox jumps over the lazy dog\n",
 	)
-	homaSocket.WriteTo(content, "130.127.133.51", 3)
+	homaSocket.WriteTo(content, "127.0.0.1", 3)
 
 	content, address, id, err := homaSocket.Read()
 	if err != nil {
