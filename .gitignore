@@ -1,2 +1,2 @@
-homa_listener/out*
-test1/out*
+homa_client/latencies*
+tcp_client/latencies*
