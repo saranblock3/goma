@@ -1,5 +1,4 @@
 main:
-	number=0 ; while [[ $$number -le 49 ]] ; do \
-    	go run main.go $$number & \
-        ((number = number + 1)) ; \
-    done
+	@for i in $$(seq 0 49); do \
+		go run main.go $$i & \
+	done;

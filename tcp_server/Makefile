@@ -1,5 +1,4 @@
 main:
-	number=8000 ; while [[ $$number -le 8049 ]] ; do \
-    	go run main.go $$number & \
-        ((number = number + 1)) ; \
-    done
+    @for i in $$(seq 8000 8049); do \
+		go run main.go $$i & \
+	done;
