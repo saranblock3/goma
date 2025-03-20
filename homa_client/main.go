@@ -19,6 +19,8 @@ const NUM_MESSAGES = 10
 var mu sync.Mutex
 var latenciesMap map[uint64]time.Time = make(map[uint64]time.Time)
 
+var id uint32
+
 var latenciesSlice []int64 = make([]int64, 0)
 
 type host struct {
@@ -28,6 +30,14 @@ type host struct {
 
 func abortAfter(n time.Duration) {
 	time.Sleep(n * time.Second)
+	latencies, err := os.OpenFile(fmt.Sprintf("latencies_%d.txt", id), os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer latencies.Close()
+	for _, latency := range latenciesSlice {
+		latencies.Write([]byte(strconv.FormatInt(latency, 10) + "\n"))
+	}
 	os.Exit(0)
 }
 
@@ -68,6 +78,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	id = localId
 
 	homaSocket, err := goma.NewHomaSocket(localId)
 	if err != nil {
