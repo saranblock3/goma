@@ -133,8 +133,6 @@ func NewHomaSocket(id uint32) (*homaSocket, error) {
 
 func (h *homaSocket) SendTo(content []byte, sourceAddress string, destinationAddress string, id uint32) error {
 	randomSleep()
-	h.sendMu.Lock()
-	defer h.sendMu.Unlock()
 	sourceAddressBytes := [4]byte{}
 	_, err := fmt.Sscanf(sourceAddress, "%d.%d.%d.%d", &sourceAddressBytes[0], &sourceAddressBytes[1], &sourceAddressBytes[2], &sourceAddressBytes[3])
 	if err != nil {
@@ -164,31 +162,35 @@ func (h *homaSocket) SendTo(content []byte, sourceAddress string, destinationAdd
 		return err
 	}
 
+	h.sendMu.Lock()
 	sent := 0
 	for sent < len(homaMessageBytes) {
 		n, err := h.conn.Write(homaMessageBytes[sent:])
 		if err != nil {
 			h.conn.Close()
+			h.sendMu.Unlock()
 			return errors.New("message not sent")
 		}
 		sent += n
 	}
+	h.sendMu.Unlock()
 	return nil
 }
 
 func (h *homaSocket) RecvFrom() ([]byte, string, string, uint32, error) {
 	randomSleep()
 	h.recvMu.Lock()
-	defer h.recvMu.Unlock()
 	sizeBytes := make([]byte, 8)
 	n, err := h.conn.Read(sizeBytes)
 	if err != nil || n < 8 {
 		h.conn.Close()
+		h.recvMu.Unlock()
 		return nil, "", "", 0, errors.New("message size not received")
 	}
 	size := binary.LittleEndian.Uint64(sizeBytes)
 	if size > HOMA_MESSAGE_MAX_LENGTH {
 		h.conn.Close()
+		h.recvMu.Unlock()
 		return nil, "", "", 0, errors.New("message exceeded maximum size")
 	}
 
@@ -198,10 +200,12 @@ func (h *homaSocket) RecvFrom() ([]byte, string, string, uint32, error) {
 		n, err = h.conn.Read(homaMessageBytes[received:])
 		if err != nil {
 			h.conn.Close()
+			h.recvMu.Unlock()
 			return nil, "", "", 0, errors.New("message not read")
 		}
 		received += uint64(n)
 	}
+	h.recvMu.Unlock()
 
 	homaMessage := &homaMessage{}
 	err = homaMessage.unmarshal(homaMessageBytes)
