@@ -28,72 +28,46 @@ type host struct {
 	Ids     []uint32 `json:"ids"`
 }
 
-func abortAfter(n time.Duration) {
-	time.Sleep(n * time.Second)
-	latencies, err := os.OpenFile(fmt.Sprintf("latencies_%d.txt", id), os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer latencies.Close()
-	for _, latency := range latenciesSlice {
-		latencies.Write([]byte(strconv.FormatInt(latency, 10) + "\n"))
-	}
-	os.Exit(0)
-}
-
-func setup() (string, uint32, map[string]host, []byte, error) {
+func setup() (string, map[string]host, []byte, error) {
 	hosts := make(map[string]host)
 
 	data, err := os.ReadFile("config.json")
 	if err != nil {
-		return "", 0, nil, nil, err
+		return "", nil, nil, err
 	}
 
 	err = json.Unmarshal(data, &hosts)
 	if err != nil {
-		return "", 0, nil, nil, err
+		return "", nil, nil, err
 	}
 
 	content, err := os.ReadFile("content.txt")
 	if err != nil {
-		return "", 0, nil, nil, err
+		return "", nil, nil, err
 	}
 
-	if len(os.Args) != 3 {
-		return "", 0, nil, nil, fmt.Errorf("invalid arguments")
+	if len(os.Args) != 2 {
+		return "", nil, nil, fmt.Errorf("invalid arguments")
 	}
 
 	localAddress := hosts[os.Args[1]].Address
-	localIdInt, err := strconv.Atoi(os.Args[2])
-	if err != nil {
-		return "", 0, nil, nil, err
-	}
-	localId := uint32(localIdInt)
 
-	return localAddress, localId, hosts, content, err
+	return localAddress, hosts, content, err
 }
 
-func main() {
-	localAddress, localId, hosts, content, err := setup()
-	if err != nil {
-		log.Fatal(err)
-	}
-	id = localId
-
+func homaClient(localAddress string, localId uint32, hosts map[string]host, content []byte, wg0 *sync.WaitGroup) {
 	homaSocket, err := goma.NewHomaSocket(localId)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer homaSocket.Close()
 
-	go abortAfter(10)
-
-	wg := sync.WaitGroup{}
+	wg1 := &sync.WaitGroup{}
 
 	for _, remoteHost := range hosts {
 		for _, remoteId := range remoteHost.Ids {
 			for range NUM_MESSAGES {
-				wg.Add(1)
+				wg1.Add(1)
 				go func(remoteHost host, remoteId uint32) {
 					id := rand.Uint64()
 					buf := make([]byte, 8)
@@ -107,9 +81,9 @@ func main() {
 					if err != nil {
 						log.Fatal(err)
 					}
-					wg.Done()
+					wg1.Done()
 				}(remoteHost, remoteId)
-				wg.Add(1)
+				wg1.Add(1)
 				go func() {
 					content, _, _, _, err := homaSocket.RecvFrom()
 					if err != nil {
@@ -121,13 +95,37 @@ func main() {
 					latency := (end.Sub(latenciesMap[id])).Nanoseconds()
 					latenciesSlice = append(latenciesSlice, latency)
 					mu.Unlock()
-					wg.Done()
+					wg1.Done()
 				}()
 			}
 		}
 	}
+	ch := make(chan bool)
+	go func() {
+		wg0.Wait()
+		ch <- true
+	}()
+	select {
+	case <-ch:
+	case <-time.After(20 * time.Second):
+	}
+	wg1.Wait()
+	wg0.Done()
+}
+
+func main() {
+	localAddress, hosts, content, err := setup()
+	if err != nil {
+		log.Fatal(err)
+	}
+	var i uint32
+	wg := &sync.WaitGroup{}
+	for i = 100; i < 200; i++ {
+		wg.Add(1)
+		go homaClient(localAddress, i, hosts, content, wg)
+	}
 	wg.Wait()
-	latencies, err := os.OpenFile(fmt.Sprintf("latencies_%d.txt", localId), os.O_WRONLY|os.O_CREATE, 0644)
+	latencies, err := os.OpenFile("latencies.txt", os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
