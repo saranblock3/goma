@@ -138,6 +138,7 @@ func main() {
 					if err != nil {
 						log.Fatal(err)
 					}
+					fmt.Println("read")
 
 					latency := time.Since(start).Nanoseconds()
 					mu.Lock()
