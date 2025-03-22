@@ -124,19 +124,20 @@ func main() {
 				go func(remoteHost host, remotePort uint32) {
 					conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", remoteHost.Address, remotePort))
 					if err != nil {
-						log.Fatal(err)
+						return
 					}
 					defer conn.Close()
 
 					err = writeAll(conn, content)
 					if err != nil {
-						log.Fatal(err)
+						return
 					}
+
 					start := time.Now()
 
 					_, err = readAll(conn)
 					if err != nil {
-						log.Fatal(err)
+						return
 					}
 					fmt.Println("read")
 
