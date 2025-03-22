@@ -68,6 +68,8 @@ func readAll(conn net.Conn) ([]byte, error) {
 		read += n
 	}
 
+	fmt.Println("read size")
+
 	size := binary.LittleEndian.Uint64(sizeBuf)
 
 	buf := make([]byte, size)
