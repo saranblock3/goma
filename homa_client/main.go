@@ -102,7 +102,7 @@ func homaClient(localAddress string, localId uint32, hosts map[string]host, cont
 	}
 	ch := make(chan bool)
 	go func() {
-		wg0.Wait()
+		wg1.Wait()
 		ch <- true
 	}()
 	select {

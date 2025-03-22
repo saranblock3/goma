@@ -23,11 +23,6 @@ type host struct {
 	Ports   []uint32 `json:"ports"`
 }
 
-func abortAfter(n time.Duration) {
-	time.Sleep(n * time.Second)
-	os.Exit(0)
-}
-
 func setup() (uint32, map[string]host, []byte, error) {
 	hosts := make(map[string]host)
 
@@ -120,8 +115,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	go abortAfter(10)
-
 	wg := sync.WaitGroup{}
 
 	for _, remoteHost := range hosts {
@@ -155,7 +148,15 @@ func main() {
 			}
 		}
 	}
-	wg.Wait()
+	ch := make(chan bool)
+	go func() {
+		wg.Wait()
+		ch <- true
+	}()
+	select {
+	case <-ch:
+	case <-time.After(20 * time.Second):
+	}
 	latencies, err := os.OpenFile(fmt.Sprintf("latencies_%d.txt", localId), os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
