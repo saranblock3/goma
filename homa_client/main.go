@@ -109,7 +109,6 @@ func homaClient(localAddress string, localId uint32, hosts map[string]host, cont
 	case <-ch:
 	case <-time.After(60 * time.Second):
 	}
-	wg1.Wait()
 }
 
 func main() {
