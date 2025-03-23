@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"math/rand/v2"
 	"os"
 	"strconv"
@@ -45,10 +46,23 @@ func setup() (string, map[string]host, []byte, error) {
 		return "", nil, nil, err
 	}
 
-	content, err := os.ReadFile(os.Args[2])
+	content, err := os.ReadFile("content.txt")
 	if err != nil {
 		return "", nil, nil, err
 	}
+
+	num, err := strconv.Atoi(os.Args[2])
+	if err != nil {
+		return "", nil, nil, err
+	}
+
+	exp := int(math.Pow(1.1, float64(num)) * float64(len(content)))
+
+	for i := 0; i < exp; i++ {
+		content = append(content, 'x')
+	}
+
+	fmt.Println(content)
 
 	localAddress := hosts[os.Args[1]].Address
 

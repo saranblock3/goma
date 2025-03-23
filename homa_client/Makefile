@@ -1,10 +1,15 @@
+main:
+	@for i in $$(seq 1 100); do \
+		go run main.go host0 $$i \
+	done;
+
 host0:
-    @for i in $$(seq 100 349); do \
+	@for i in $$(seq 100 349); do \
 		go run main.go host0 $$i & \
 	done;
 
 host1:
-    @for i in $$(seq 100 349); do \
+	@for i in $$(seq 100 349); do \
 		go run main.go host1 $$i & \
 	done;
 
