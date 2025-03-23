@@ -29,6 +29,10 @@ type host struct {
 }
 
 func setup() (string, map[string]host, []byte, error) {
+	if len(os.Args) != 3 {
+		return "", nil, nil, fmt.Errorf("invalid arguments")
+	}
+
 	hosts := make(map[string]host)
 
 	data, err := os.ReadFile("config.json")
@@ -41,13 +45,9 @@ func setup() (string, map[string]host, []byte, error) {
 		return "", nil, nil, err
 	}
 
-	content, err := os.ReadFile("content.txt")
+	content, err := os.ReadFile(os.Args[2])
 	if err != nil {
 		return "", nil, nil, err
-	}
-
-	if len(os.Args) != 2 {
-		return "", nil, nil, fmt.Errorf("invalid arguments")
 	}
 
 	localAddress := hosts[os.Args[1]].Address
