@@ -112,7 +112,7 @@ func writeAll(conn net.Conn, buf []byte) error {
 }
 
 func main() {
-	localId, hosts, content, err := setup()
+	_, hosts, content, err := setup()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -159,9 +159,9 @@ func main() {
 	}()
 	select {
 	case <-ch:
-	case <-time.After(20 * time.Second):
+	case <-time.After(60 * time.Second):
 	}
-	latencies, err := os.OpenFile(fmt.Sprintf("latencies_%d.txt", localId), os.O_WRONLY|os.O_CREATE, 0644)
+	latencies, err := os.OpenFile("latencies.txt", os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -55,7 +55,7 @@ func setup() (string, map[string]host, []byte, error) {
 	return localAddress, hosts, content, err
 }
 
-func homaClient(localAddress string, localId uint32, hosts map[string]host, content []byte, wg0 *sync.WaitGroup) {
+func homaClient(localAddress string, localId uint32, hosts map[string]host, content []byte) {
 	homaSocket, err := goma.NewHomaSocket(localId)
 	if err != nil {
 		log.Fatal(err)
@@ -107,10 +107,9 @@ func homaClient(localAddress string, localId uint32, hosts map[string]host, cont
 	}()
 	select {
 	case <-ch:
-	case <-time.After(20 * time.Second):
+	case <-time.After(60 * time.Second):
 	}
 	wg1.Wait()
-	wg0.Done()
 }
 
 func main() {
@@ -118,19 +117,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var i uint32
-	wg := &sync.WaitGroup{}
-	for i = 100; i < 200; i++ {
-		wg.Add(1)
-		go homaClient(localAddress, i, hosts, content, wg)
-	}
-	wg.Wait()
+	var i uint32 = 1000
+	homaClient(localAddress, i, hosts, content)
 	latencies, err := os.OpenFile("latencies.txt", os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer latencies.Close()
+	mu.Lock()
 	for _, latency := range latenciesSlice {
 		latencies.Write([]byte(strconv.FormatInt(latency, 10) + "\n"))
 	}
+	mu.Unlock()
 }
