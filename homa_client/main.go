@@ -79,7 +79,7 @@ func homaClient(localAddress string, localId uint32, hosts map[string]host, cont
 					latenciesMap[id] = start
 					mu.Unlock()
 					if err != nil {
-						log.Fatal(err)
+						return
 					}
 					wg1.Done()
 				}(remoteHost, remoteId)
@@ -87,7 +87,7 @@ func homaClient(localAddress string, localId uint32, hosts map[string]host, cont
 				go func() {
 					content, _, _, _, err := homaSocket.RecvFrom()
 					if err != nil {
-						log.Fatal(err)
+						return
 					}
 					id := binary.LittleEndian.Uint64(content[:8])
 					end := time.Now()
