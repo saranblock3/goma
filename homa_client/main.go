@@ -119,7 +119,7 @@ func main() {
 	}
 	var i uint32 = 1000
 	homaClient(localAddress, i, hosts, content)
-	latencies, err := os.OpenFile("latencies.txt", os.O_WRONLY|os.O_CREATE, 0644)
+	latencies, err := os.OpenFile(fmt.Sprintf("%s_latencies.txt", os.Args[2]), os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
