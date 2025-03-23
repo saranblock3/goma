@@ -1,6 +1,6 @@
 main:
-	@for i in $$(seq 1 100); do \
-		go run main.go host0 $$i \
+	@for i in $$(seq 1 102); do \
+		go run main.go host0 $$i >> latencies_$$i \
 	done;
 
 host0:
