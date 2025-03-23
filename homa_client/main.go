@@ -108,7 +108,7 @@ func homaClient(localAddress string, localId uint32, hosts map[string]host, cont
 	}()
 	select {
 	case <-ch:
-	case <-time.After(60 * time.Second):
+	case <-time.After(20 * time.Second):
 	}
 }
 
