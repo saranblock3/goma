@@ -1,5 +1,5 @@
 main:
-	@for i in $$(seq 1 102); do \
+	@for i in $$(seq 70 102); do \
 		go run main.go host0 $$i >> latencies_$$i; \
 	done;
 
