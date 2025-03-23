@@ -91,7 +91,6 @@ func homaClient(localAddress string, localId uint32, hosts map[string]host, cont
 					}
 					id := binary.LittleEndian.Uint64(content[:8])
 					end := time.Now()
-					fmt.Println("hello")
 					mu.Lock()
 					latency := (end.Sub(latenciesMap[id])).Nanoseconds()
 					latenciesSlice = append(latenciesSlice, latency)
@@ -119,7 +118,7 @@ func main() {
 	}
 	var i uint32 = 1000
 	homaClient(localAddress, i, hosts, content)
-	latencies, err := os.OpenFile(fmt.Sprintf("%s_latencies.txt", os.Args[2]), os.O_WRONLY|os.O_CREATE, 0644)
+	latencies, err := os.OpenFile(fmt.Sprintf("latencies_%s", os.Args[2]), os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
