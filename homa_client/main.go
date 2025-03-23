@@ -91,6 +91,7 @@ func homaClient(localAddress string, localId uint32, hosts map[string]host, cont
 					}
 					id := binary.LittleEndian.Uint64(content[:8])
 					end := time.Now()
+					fmt.Println("hello")
 					mu.Lock()
 					latency := (end.Sub(latenciesMap[id])).Nanoseconds()
 					latenciesSlice = append(latenciesSlice, latency)
