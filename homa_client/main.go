@@ -62,8 +62,6 @@ func setup() (string, map[string]host, []byte, error) {
 		content = append(content, 'x')
 	}
 
-	fmt.Println(content)
-
 	localAddress := hosts[os.Args[1]].Address
 
 	return localAddress, hosts, content, err
@@ -132,14 +130,15 @@ func main() {
 	}
 	var i uint32 = 1000
 	homaClient(localAddress, i, hosts, content)
-	latencies, err := os.OpenFile(fmt.Sprintf("latencies_%s", os.Args[2]), os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer latencies.Close()
+	// latencies, err := os.OpenFile(fmt.Sprintf("latencies_%s", os.Args[2]), os.O_WRONLY|os.O_CREATE, 0644)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// defer latencies.Close()
 	mu.Lock()
 	for _, latency := range latenciesSlice {
-		latencies.Write([]byte(strconv.FormatInt(latency, 10) + "\n"))
+		// latencies.Write([]byte(strconv.FormatInt(latency, 10) + "\n"))
+		fmt.Printf("%d\n", latency)
 	}
 	mu.Unlock()
 }
