@@ -74,8 +74,6 @@ func readAll(conn net.Conn) ([]byte, error) {
 		read += n
 	}
 
-	fmt.Println("read size")
-
 	size := binary.LittleEndian.Uint64(sizeBuf)
 
 	buf := make([]byte, size)
@@ -147,7 +145,6 @@ func main() {
 					if err != nil {
 						return
 					}
-					fmt.Println("read")
 
 					latency := time.Since(start).Nanoseconds()
 					mu.Lock()
