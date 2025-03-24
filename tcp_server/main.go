@@ -102,6 +102,6 @@ func tcpListener() {
 }
 
 func main() {
-	go abortAfter(60)
+	go abortAfter(600)
 	tcpListener()
 }
