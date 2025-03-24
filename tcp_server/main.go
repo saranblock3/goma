@@ -70,8 +70,8 @@ func writeAll(conn net.Conn, buf []byte) error {
 }
 
 func tcpListener() {
-	address := "localhost"
-	port := os.Args[1]
+	address := os.Args[1]
+	port := os.Args[2]
 
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", address, port))
 	if err != nil {
