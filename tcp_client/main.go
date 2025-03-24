@@ -120,6 +120,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Fprintln(os.Stderr, len(content))
 
 	wg := sync.WaitGroup{}
 
