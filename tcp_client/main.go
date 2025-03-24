@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net"
 	"os"
 	"strconv"
@@ -23,35 +24,40 @@ type host struct {
 	Ports   []uint32 `json:"ports"`
 }
 
-func setup() (uint32, map[string]host, []byte, error) {
+func setup() (map[string]host, []byte, error) {
 	hosts := make(map[string]host)
 
 	data, err := os.ReadFile("config.json")
 	if err != nil {
-		return 0, nil, nil, err
+		return nil, nil, err
 	}
 
 	err = json.Unmarshal(data, &hosts)
 	if err != nil {
-		return 0, nil, nil, err
+		return nil, nil, err
 	}
 
 	content, err := os.ReadFile("content.txt")
 	if err != nil {
-		return 0, nil, nil, err
+		return nil, nil, err
 	}
 
 	if len(os.Args) != 2 {
-		return 0, nil, nil, fmt.Errorf("invalid arguments")
+		return nil, nil, fmt.Errorf("invalid arguments")
 	}
 
-	localIdInt, err := strconv.Atoi(os.Args[1])
+	num, err := strconv.Atoi(os.Args[1])
 	if err != nil {
-		return 0, nil, nil, err
+		return nil, nil, err
 	}
-	localId := uint32(localIdInt)
 
-	return localId, hosts, content, err
+	exp := int(math.Pow(1.1, float64(num)) * float64(len(content)))
+
+	for i := 0; i < exp; i++ {
+		content = append(content, 'x')
+	}
+
+	return hosts, content, err
 }
 
 func readAll(conn net.Conn) ([]byte, error) {
@@ -112,7 +118,7 @@ func writeAll(conn net.Conn, buf []byte) error {
 }
 
 func main() {
-	_, hosts, content, err := setup()
+	hosts, content, err := setup()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -159,17 +165,11 @@ func main() {
 	}()
 	select {
 	case <-ch:
-	case <-time.After(60 * time.Second):
+	case <-time.After(20 * time.Second):
 	}
-	latencies, err := os.OpenFile("latencies.txt", os.O_WRONLY|os.O_CREATE, 0644)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer latencies.Close()
+	mu.Lock()
 	for _, latency := range latenciesSlice {
-		_, err := fmt.Fprintf(latencies, "%d\n", latency)
-		if err != nil {
-			log.Fatal(err)
-		}
+		fmt.Printf("%d\n", latency)
 	}
+	mu.Unlock()
 }
