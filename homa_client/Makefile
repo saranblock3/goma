@@ -1,6 +1,8 @@
 main:
-	@for i in $$(seq 70 102); do \
-		go run main.go host0 $$i >> latencies_$$i; \
+	@for i in $$(seq 0 102); do \
+		go run main.go host0 $$i >> latencies_$$i &; \
+		pid = $$!; \
+		python3 monitor_cpu.py $$pid; \
 	done;
 
 host0:
