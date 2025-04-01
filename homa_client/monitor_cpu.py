@@ -14,7 +14,7 @@ if len(sys.argv) < 2:
 
 pid = int(sys.argv[1])
 
-signal.alarm(20)
+signal.alarm(5)
 
 try:
     process1 = psutil.Process(pid)
