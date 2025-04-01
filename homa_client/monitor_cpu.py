@@ -8,18 +8,16 @@ def alarm_handler(signum, frame):
 
 signal.signal(signal.SIGALRM, alarm_handler)
 
-if len(sys.argv) < 3:
-    print("Usage: python monitor_cpu.py <pid1> <pid2>")
+if len(sys.argv) < 2:
+    print("Usage: python monitor_cpu.py <pid>")
     sys.exit(1)
 
-pid1 = int(sys.argv[1])
-pid2 = int(sys.argv[2])
+pid = int(sys.argv[1])
 
 signal.alarm(20)
 
 try:
-    process1 = psutil.Process(pid1)
-    process2 = psutil.Process(pid2)
+    process1 = psutil.Process(pid)
     while True:
         cpu_percent = process1.cpu_percent(interval=0.1)
         print(f"{cpu_percent}")
