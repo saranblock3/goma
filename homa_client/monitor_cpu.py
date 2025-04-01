@@ -1,5 +1,12 @@
 import psutil
 import sys
+import signal
+
+def alarm_handler(signum, frame):
+    sys.exit(1)
+
+
+signal.signal(signal.SIGALRM, alarm_handler)
 
 if len(sys.argv) < 3:
     print("Usage: python monitor_cpu.py <pid1> <pid2>")
@@ -7,6 +14,8 @@ if len(sys.argv) < 3:
 
 pid1 = int(sys.argv[1])
 pid2 = int(sys.argv[2])
+
+signal.alarm(20)
 
 try:
     process1 = psutil.Process(pid1)
