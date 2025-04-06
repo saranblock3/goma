@@ -1,2 +1,4 @@
-homa_client/latencies*
-tcp_client/latencies*
+homa_client
+homa_server
+tcp_client
+tcp_server

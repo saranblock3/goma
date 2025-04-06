@@ -8,18 +8,11 @@ def alarm_handler(signum, frame):
 
 signal.signal(signal.SIGALRM, alarm_handler)
 
-if len(sys.argv) < 2:
-    print("Usage: python monitor_cpu.py <pid>")
-    sys.exit(1)
-
-pid = int(sys.argv[1])
-
 signal.alarm(5)
 
 try:
-    process1 = psutil.Process(pid)
     while True:
-        cpu_percent = process1.cpu_percent(interval=0.1)
+        cpu_percent = psutil.cpu_percent(interval=0.1)
         print(f"{cpu_percent}")
 except psutil.NoSuchProcess:
     print("Process with PID not found.")

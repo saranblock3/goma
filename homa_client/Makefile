@@ -1,7 +1,6 @@
 main:
 	@for i in $$(seq 0 102); do \
 		go run main.go host0 $$i >> latencies_$$i & \
-		pid=$$!; \
 		python3 monitor_cpu.py 6358 >> cpu_usage_$$i; \
 	done;
 
@@ -11,21 +10,21 @@ host0:
 	done;
 
 host1:
-	@for i in $$(seq 100 349); do \
+	@for i in $$(seq 400 649); do \
 		go run main.go host1 $$i & \
 	done;
 
 host2:
-	@for i in $$(seq 100 349); do \
+	@for i in $$(seq 700 949); do \
 		go run main.go host2 $$i & \
     done;
 
 host3:
-	@for i in $$(seq 100 349); do \
+	@for i in $$(seq 1000 1249); do \
 		go run main.go host3 $$i & \
     done;
 
 host4:
-	@for i in $$(seq 100 349); do \
+	@for i in $$(seq 1200 1549); do \
 		go run main.go host4 $$i & \
     done;
